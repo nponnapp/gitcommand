@@ -1,0 +1,30 @@
+---
+ - hosts: hosts
+   remote_user: ubuntu
+   sudo: true
+   tasks:
+
+#   - name: Run the equivalent of "apt-get update" as a separate step
+#     apt:
+#      update_cache: yes
+#
+#    - name: Install list of packages
+#      apt: name={{item}} state=installed
+#      with_items:
+#        - nagios-nrpe-server
+#        - nagios-plugins
+
+#   - replace: dest=/etc/nagios/nrpe.cfg regexp='command\[check_total_procs\]=/usr/lib/nagios/plugins/check_procs -w 150 -c 200' replace='command[check_total_procs]=/usr/lib/nagios/plugins/check_procs -w 200 -c 300'
+
+    - lineinfile: dest=/etc/nagios/nrpe.cfg regexp='^allowed_hosts' insertafter='allowed_hosts=127.0.0.1' line='allowed_hosts=127.0.0.1,54.221.249.58'
+    - name: Register output
+      shell: df -h | grep ^/dev | awk '{print $1}'
+      register: df
+
+    - name: test debug
+      lineinfile: dest=/etc/nagios/nrpe.cfg line="command[{{ item }}]=/usr/lib/nagios/plugins/check_disk -w 20% -c 10% -p {{ item }}"
+      with_items: df.stdout_lines
+
+
+    - name: restart nrpe server
+      shell: /etc/init.d/nagios-nrpe-server restart
