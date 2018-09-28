@@ -28,3 +28,6 @@
 
     - name: restart nrpe server
       shell: /etc/init.d/nagios-nrpe-server restart
+
+    - name: duplicate code
+          shell: /etc/init.d/nagios-nrpe-server restart
