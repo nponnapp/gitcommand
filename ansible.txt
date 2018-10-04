@@ -31,3 +31,5 @@
 
     - name: duplicate code
           shell: /etc/init.d/nagios-nrpe-server restart
+
+Code seems ot be working goooood
