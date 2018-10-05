@@ -1,0 +1,30 @@
+
+
+/mon-put-instance-data.pl --mem-util --disk-space-util  --swap-util --disk-path=/  
+
+bin/aws cloudwatch put-metric-data --metric-name "Docker Container $container is down on `hostname`" --unit Percent --value "$count" --dimensions InstanceId=$INST_ID --namespace Build/slave
+
+
+aws cloudwatch put-metric-alarm --region us-east-1 
+    --alarm-name "HighmemUtilization" 
+    --alarm-description "High CPU Utilization" 
+    --metric-name "CPUUtilization" 
+    --namespace AWS/EC2 --statistic "Average" 
+    --dimensions "Name=InstanceName,Value=demo" 
+    --period 60 
+    --evaluation-periods 60 
+    --threshold 40 
+    --comparison-operator "GreaterThanOrEqualToThreshold"
+	
+	
+	mon-put-data --namespace="Build/Slave" --metric-name=FreeMemory --dimensions="InstanceId=i-0b663151eac0437a2" --unit=Kilobytes --value=$FREEMEMKB
+	
+#!/bin/sh
+memory=`free -m | awk 'NR==2{printf "Memory Usage: %s/%sMB (%.2f%%)\n", $3,$2,$3*100/$2 }' | awk '{print $4}' | cut -d'(' -f2 | cut -d'%' -f1`
+Disk=`df -h | awk '$NF=="/"{printf "Disk Usage: %d/%dGB (%s)\n", $3,$2,$5}' | awk '{print $4}' | cut -d'(' -f2 | cut -d')' -f1 | cut -d'%' -f1`
+CPU=`top -bn1 | grep load | awk '{printf "CPU Load: %.2f\n", $(NF-2)}'`
+procs=`ps -A --no-headers | wc -l`
+
+/bin/aws cloudwatch put-metric-data --metric-name "Memory-Utilization" --unit Percent --value "$memory" --dimensions InstanceId=$instanceid --namespace Git-Jenkins
+/bin/aws cloudwatch put-metric-data --metric-name "Disk-Root-Utilization" --unit Percent --value "$Disk" --dimensions InstanceId=$instanceid --namespace Git-Jenkins
+/bin/aws cloudwatch put-metric-data --metric-name "Total-Process" --unit Percent --value "$procs" --dimensions InstanceId=$instanceid --namespace Git-Jenkins
