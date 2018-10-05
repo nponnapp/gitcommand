@@ -25,6 +25,3 @@ Disk=`df -h | awk '$NF=="/"{printf "Disk Usage: %d/%dGB (%s)\n", $3,$2,$5}' | aw
 CPU=`top -bn1 | grep load | awk '{printf "CPU Load: %.2f\n", $(NF-2)}'`
 procs=`ps -A --no-headers | wc -l`
 
-/bin/aws cloudwatch put-metric-data --metric-name "Memory-Utilization" --unit Percent --value "$memory" --dimensions InstanceId=$instanceid --namespace Git-Jenkins
-/bin/aws cloudwatch put-metric-data --metric-name "Disk-Root-Utilization" --unit Percent --value "$Disk" --dimensions InstanceId=$instanceid --namespace Git-Jenkins
-/bin/aws cloudwatch put-metric-data --metric-name "Total-Process" --unit Percent --value "$procs" --dimensions InstanceId=$instanceid --namespace Git-Jenkins
